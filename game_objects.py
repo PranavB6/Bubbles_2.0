@@ -1,6 +1,6 @@
 from constants import *
 import pygame as pg
-import string, time
+import time
 pg.font.init()
 
 
@@ -30,8 +30,11 @@ class Game():
 
 		for row in range(grid_manager.rows):
 			for col in range(grid_manager.cols):
-				frames = grid_manager.grid[row][col].pop()
-				grid_manager.animations.append(frames)
+				bubble = grid_manager.grid[row][col]
+
+				if bubble.exists: 
+					frames = bubble.pop()
+					grid_manager.animations.append(frames)
 
 		while True:
 			for event in pg.event.get():
@@ -133,7 +136,6 @@ class CheatManager():
 	def __init__(self, grid_manager, gun):
 		self.grid_manager = grid_manager
 		self.gun = gun 
-		self.alphabet = set(string.ascii_lowercase)
 
 		#----------------------------------- Put you cheat codes here --------------------------------#
 		self.cheats = ['god', 'explosion', 'blue', 'violet', 'green', 'yellow', 'red']
@@ -146,11 +148,9 @@ class CheatManager():
 
 	def check(self, event, cheat, machine):
 
+		if not chr(event.key).isalpha(): return
+
 		char = chr(event.key)
-
-		if char not in self.alphabet: return
-
-		# print('Pressed:', char)
 
 		if machine.get_state() == 'begin':
 			machine.idx = 0

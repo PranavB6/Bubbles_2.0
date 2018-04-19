@@ -95,7 +95,7 @@ class GridBubble(Bubble):
 		return alive_comrades
 
 	def pop(self):
-		if self.exists == False: raise ValueError('Trying to bubble that doesn\'t exist: ({}, {})'.format(self.row, self.col))
+		if self.exists == False: raise ValueError('Trying to pop bubble that doesn\'t exist: ({}, {})'.format(self.row, self.col))
 
 		frames = []
 		x, y = int(self.pos[0]), int(self.pos[1])

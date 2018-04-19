@@ -14,12 +14,12 @@ DISP_W = 900
 DISP_H = 700
 BOTTOM_CENTER = (450,700)
 DISP_CENTER = (DISP_W/2, DISP_H/2)
-CAPTION = 'Bubble Trouble but worse'
+
 
 # create display
 display = pg.display.set_mode((DISP_W,DISP_H))
 display_rect = display.get_rect()
-pg.display.set_caption(CAPTION)
+pg.display.set_caption('Bubbles 2.0')
 clock = pg.time.Clock()
 
 # colours
