@@ -1,7 +1,7 @@
 import pygame as pg
 
 # visualizations
-VISUALIZATIONS = True
+VISUALIZATIONS = False
 SHOW_COMRADES = False
 SHOW_TARGETS = False
 SHOW_HITBOXES = False

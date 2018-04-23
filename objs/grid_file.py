@@ -20,26 +20,33 @@ class GridManager():
 		# Put bubbles in the grid
 		for row in range(self.rows):
 			for col in range(self.cols):
+				# Calculate the position of the bubbles that are going to be in the grid
 				pos = GridManager.calcPos(row, col, self.even_offset)
+
+				# Create the grid bubbles. Note: The bubble's color is random be default
 				self.grid[row][col] = GridBubble(row, col, pos)
 
-
+		# find the neighbour of each bubble
 		for row in range(self.rows):
 			for col in range(self.cols):
 				self.findComrades(self.grid[row][col])
 
-		self.appendBottom()
-		self.findTargets()
-		self.collided = False
-		self.collision_counter = 0
-		self.animations = []
-		self.paths = []
-		self.prev_time = 0
+		# Add a row blank bubbles. The bullet will take the place of one of these bubbles
+		self.appendBottom()			
+		self.findTargets()			# Find the targets that will be checked for collisions
+		self.collided = False		# There have been no collisions yet
+		self.collision_counter = 0	# How many collisions there have been. Used to determine when to add a new row to top
+		self.animations = []		# The list of animations for the bubbles falling effect
+		self.paths = []				# The list if animations for the root search (lines) effect when visualtions are on
+		self.prev_time = 0			# used for the paths (root search) animation
 
+	# This is the main function of the manager, it handles the main logic of the grid
 	def view(self, gun, game):
 
+		# if a bullet has been fired, check for collisions, pretty simple
 		if gun.fired.exists: self.checkCollision(gun.fired)
-
+		
+		# if there's been a collision, we gotta update the grid
 		if self.collided: 
 			self.collision_counter += 1
 			bubble = self.reviveBubble(gun.fired)			
@@ -49,12 +56,19 @@ class GridManager():
 			self.checkGameOver(game)
 			self.collided = False
 
+		# No matter what happens, update the grid
+		# draws the bubbles, animations, visualizations
 		self.draw()
 
+	# Simply checks if the game is over
 	def checkGameOver(self, game):
 
+		# If the total amount of rows (including non-existent bubbles) is less than the GAMEOVER_ROWS, 
+		# the game can't possibly be over so return
 		if self.rows < GAMEOVER_ROWS: return
 
+		# if there is an existing bubble in the row with index GAMEOVER_ROWS-1, the game is over
+		# aka if there is a bubble below the red line, the game is over
 		for col in range(self.cols):
 			if self.grid[GAMEOVER_ROWS - 1][col].exists:
 				game.over = True
@@ -63,41 +77,57 @@ class GridManager():
 
 	def checkCollision(self, bullet):
 
+		# Get the bullet and 'see' its future position
+		# this is so that when the bullet stops existing and turns into the grid, it looks more smooth
 		bullet_x, bullet_y = bullet.pos
 		bullet_x += bullet.dx
 		bullet_y += bullet.dy
 
+		# Check every target and see if the bullet has collided with it
 		for target in self.targets:
 			target_x, target_y = target.pos
 
+			# get the target's hitbox U,D,L,R position
 			L = target_x - (HITBOX_SIZE/2)
 			R = target_x + (HITBOX_SIZE/2)
 			U = target_y - (HITBOX_SIZE/2)
 			D = target_y + (HITBOX_SIZE/2)
 
+			# Check if the bullet is within the hitbox
 			if (bullet_y - (HITBOX_SIZE/2)) < D:		
 				if (bullet_x + (HITBOX_SIZE/2)) > L:	
 					if (bullet_x - (HITBOX_SIZE/2)) < R:			
 						if (bullet_y + (HITBOX_SIZE/2)) > U:
+
+							# If the bullet is within the hitbox, destroy it
 							bullet.exists = False
+
+							# There's been a collision
 							self.collided = True
 
-		if bullet_y < 0: 
+							# NOTE: theres another function that revives a bubble
+
+		# if the bullet goes over the top of the screen, it counts a collision
+		if bullet_y - BUBBLE_RADIUS < 0: 
 			bullet.exists = False
 			self.collided = True
 
+	# Finds the closest non-existent bubble to the position of the bullet and revive it
 	def reviveBubble(self, bullet):
 
+		# renaming the var for readability
 		collide_point = bullet.pos
 
-		imaginary = []
-		dists = []
+		imaginary = []	# a list of all the non-existent bubbles
+		dists = []		# a list of distances to the non-existent bubbles
 
+		# create a list of all the non-existent bubbles
 		for row in range(self.rows):
 			for col in range(self.cols):
 				if not self.grid[row][col].exists:
 					imaginary.append(self.grid[row][col])
 
+		# get the distance from the collision point to the non-existent bubble
 		for bubble in imaginary:
 			x,y = collide_point
 			bubble_x, bubble_y = bubble.pos
@@ -105,30 +135,41 @@ class GridManager():
 			dist = sqrt( (((x - bubble_x) ** 2) + (y - bubble_y) ** 2) )
 			dists.append(dist)
 
+		# get the index if the closest non-existent bubble
 		idx = dists.index(min(dists))
+		# closest non-existent bubble is its replacement
 		replacement = imaginary[idx]
 
+		# revive the replacement bubble
 		replacement.exists = True
+		# its color is the bubblet's color
 		replacement.color = bullet.color
 
+		# we will use this bubble to check if it forms any clusters to pop
 		return replacement
 
+	# add/deletes rows to the top and/or bottom as necessary
 	def updateRows(self):
 
+		# after 'APPEND_COUNTDOWN' of collisions, add a row to the top
 		if (self.collision_counter % APPEND_COUNTDOWN == 0) and (self.collision_counter != 0): self.appendTop()
 
+		# if theres an existent bubble in the very last row, add a new row to the bottom
+		# A bullet takes the place of a non-existent bubble so there should always be an empty
+		# row at the very bottom of the grid
 		for col in range(self.cols):
 			if self.grid[self.rows-1][col].exists:
 				self.appendBottom()
 				return
 
+		# if the second last row is completely empty (have no existing bubbles), we can delete the last row
 		for col in range(self.cols):
 			if self.grid[self.rows - 2][col].exists:
 				return
 
 		self.deleteBottom()
 
-
+	# simple function to add to the top 
 	def appendTop(self):
 
 		for row in range(self.rows):
