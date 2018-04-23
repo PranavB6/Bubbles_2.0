@@ -13,7 +13,8 @@ class Shooter():
 		self.pos = pos
 		self.pos_x, self.pos_y = pos
 
-		self.initImage(image)
+		self.initGunImage(image)
+		self.initCrossHair()
 
 		self.angle = 0
 
@@ -31,7 +32,7 @@ class Shooter():
 
 
 
-	def initImage(self, image):
+	def initGunImage(self, image):
 		# Load image
 		self.shooter = pg.image.load(image).convert_alpha()
 
@@ -64,6 +65,18 @@ class Shooter():
 		# Since we want 90 to be when the shooter is pointing straight up, we rotate it
 		self.shooter_box = pg.transform.rotate(self.shooter_box, -90)
 
+
+	def initCrossHair(self):
+
+		#invis cursor
+		pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
+
+		#Load and draw crosshair
+		crosshair = pygame.image.load('images/crosshair.png')
+		sf = 00.20
+		self.crosshair = pg.transform.scale(crosshair, (int(crosshair.get_width() * sf), int(crosshair.get_height() * sf)))
+		self.crosshair_rect = self.crosshair.get_rect()
+
 	# Cuz why not
 	def draw(self):
 		display.blit(self.shooter_box, self.pos)
@@ -78,6 +91,9 @@ class Shooter():
 	# Rotates an image and displays it
 	def rotate(self, mouse_pos):
 		self.draw_line()
+
+		self.crosshair_rect.center = mouse_pos
+		display.blit(self.crosshair, self.crosshair_rect)
 
 		# Get angle of rotation (in degrees)
 		self.angle = self.calcMouseAngle(mouse_pos)
