@@ -80,8 +80,8 @@ class GridManager():
 		# Get the bullet and 'see' its future position
 		# this is so that when the bullet stops existing and turns into the grid, it looks more smooth
 		bullet_x, bullet_y = bullet.pos
-		bullet_x += bullet.dx
-		bullet_y += bullet.dy
+		bullet_x += 0.5*bullet.dx
+		bullet_y += 0.5*bullet.dy
 
 		# Check every target and see if the bullet has collided with it
 		for target in self.targets:
@@ -172,45 +172,61 @@ class GridManager():
 	# simple function to add to the top 
 	def appendTop(self):
 
+		# add one to the row of every bubble that is already on the grid
 		for row in range(self.rows):
 			for col in range(self.cols):
 				self.grid[row][col].row += 1
 
-		new_row = []
+		# update total amount of rows
 		self.rows += 1
+
+		# Since we want to shift everything down, the opposite row will have an offset
 		self.even_offset = not self.even_offset
 
+		# create a new row and insert it to the grid
+		new_row = []
 		for col in range(self.cols):
-			pos = GridManager.calcPos(0, col, self.even_offset)
+			# for now, the position will be 0,0
 			new_row.append(GridBubble(0, col, (0,0)))
 
 		self.grid.insert(0, new_row)
 
+		# calc the new position for every bubble
 		for row in range(self.rows):
 			for col in range(self.cols):
 				self.grid[row][col].pos = GridManager.calcPos(row, col, self.even_offset)
+				# the bubbles are connected to other bubble objects, so we don't need to calc the comrades of every bubble
+				# we only need to reset the comrades of the bubbles of the first two rows
 				if (row == 0) or (row == 1): self.findComrades(self.grid[row][col])	
 
+	# a simple function to add to the bottom
 	def appendBottom(self):
 
 		row = []
 
+		# initialize a new row of bubbles with row = total rows
 		for col in range(self.cols):
+			# calc the postition of the bubble
 			pos = GridManager.calcPos(self.rows, col, self.even_offset)
 			row.append(GridBubble(self.rows, col, pos, exists = False, color = BG_COLOR))
 
+		# add it to the grid
 		self.grid.append(row)
 
+		# update the total amount of rows
 		self.rows += 1
 
-		for row in range(self.rows - 3, self.rows):
+		# find the comrades of the last two rows
+		for row in range(self.rows - 2, self.rows):
 			for col in range(self.cols):
 				self.findComrades(self.grid[row][col])
 
+	# to delete a row from the bottom
 	def deleteBottom(self):
-		self.grid.pop()
-		self.rows -= 1
+		self.grid.pop()	# simply pop the last row
+		self.rows -= 1	# update total amount of rows
 
+		# Update the comrades of the new bottom
 		for col in range(self.cols):
 			self.findComrades(self.grid[self.rows - 1][col])
 
@@ -218,6 +234,7 @@ class GridManager():
 
 	def popCluster(self, bubble, game):
 
+		# get a list of all the bubbles of the same color using dept first search
 		cluster = self.findCluster(bubble)
 
 		if (len(cluster) >= 3) or (bubble.color == BLACK):			
