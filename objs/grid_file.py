@@ -7,16 +7,20 @@ import pygame as pg
 class GridManager():
 
 	def __init__(self):
-		self.rows = GRID_ROWS
-		self.cols = GRID_COLS
-		self.even_offset = True
-		self.targets = []
+		self.rows = GRID_ROWS		# Initialize the amount of rows
+		self.cols = GRID_COLS		# Initialize the amount if cols
+		self.even_offset = True		# Which rows (even or odd) are offset
 
+		# this will contain the bubbles that will be checked for collisions
+		self.targets = []			
+		
+		# Initialize the grid
 		self.grid = [[0 for col in range(self.cols)] for row in range(self.rows)]
 
+		# Put bubbles in the grid
 		for row in range(self.rows):
 			for col in range(self.cols):
-				pos = self.calcPos(row, col, self.even_offset)
+				pos = GridManager.calcPos(row, col, self.even_offset)
 				self.grid[row][col] = GridBubble(row, col, pos)
 
 
@@ -136,14 +140,14 @@ class GridManager():
 		self.even_offset = not self.even_offset
 
 		for col in range(self.cols):
-			pos = self.calcPos(0, col, self.even_offset)
+			pos = GridManager.calcPos(0, col, self.even_offset)
 			new_row.append(GridBubble(0, col, (0,0)))
 
 		self.grid.insert(0, new_row)
 
 		for row in range(self.rows):
 			for col in range(self.cols):
-				self.grid[row][col].pos = self.calcPos(row, col, self.even_offset)
+				self.grid[row][col].pos = GridManager.calcPos(row, col, self.even_offset)
 				if (row == 0) or (row == 1): self.findComrades(self.grid[row][col])	
 
 	def appendBottom(self):
@@ -151,7 +155,7 @@ class GridManager():
 		row = []
 
 		for col in range(self.cols):
-			pos = self.calcPos(self.rows, col, self.even_offset)
+			pos = GridManager.calcPos(self.rows, col, self.even_offset)
 			row.append(GridBubble(self.rows, col, pos, exists = False, color = BG_COLOR))
 
 		self.grid.append(row)
@@ -286,8 +290,8 @@ class GridManager():
 
 		# for target in self.targets: print('row, col = {}, {}'.format(target.row, target.col))
 
-
-	def calcPos(self, row, col, even_offset):
+	@staticmethod
+	def calcPos(row, col, even_offset):
 
 		x = (col * ((ROOM_WIDTH - BUBBLE_RADIUS) / (GRID_COLS))) + WALL_BOUND_L + BUBBLE_RADIUS
 
