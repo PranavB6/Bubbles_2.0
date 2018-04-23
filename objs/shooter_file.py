@@ -1,13 +1,13 @@
 import random
-from constants import *
-from bubble_file import *
+from objs.constants import *
+from objs.bubble_file import *
 from math import sin, cos, radians, degrees, atan2
 import pygame as pg
 
 
 class Shooter():
 
-	def __init__(self, image = 'gun.png', pos = display_rect.center):
+	def __init__(self, image = 'images/gun.png', pos = display_rect.center):
 
 		# center position of the image
 		self.pos = pos

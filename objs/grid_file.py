@@ -1,6 +1,6 @@
 import time, random
-from constants import *
-from bubble_file import *
+from objs.constants import *
+from objs.bubble_file import *
 from math import sqrt
 import pygame as pg
 

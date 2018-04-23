@@ -1,4 +1,4 @@
-from constants import *
+from objs.constants import *
 from math import sin, cos
 import random, time
 import pygame.gfxdraw

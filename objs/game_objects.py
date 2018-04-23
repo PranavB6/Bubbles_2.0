@@ -1,4 +1,4 @@
-from constants import *
+from objs.constants import *
 import pygame as pg
 import time
 pg.font.init()
@@ -12,7 +12,7 @@ class Game():
 		self.score = 0
 		self.prev_score = self.score
 
-		self.font = pg.font.Font("pixel.otf", 30)
+		self.font = pg.font.Font("fonts/pixel.otf", 30)
 
 		self.score_label = self.font.render('Score:{}'.format(self.score), False, BLACK)
 		self.score_label_x, self.score_label_y, _, _ = self.score_label.get_rect(center = DISP_CENTER)
@@ -91,7 +91,7 @@ class Background():
 
 	def getImage(self):
 		# Load and draw background image
-		bg = pg.image.load('bg.png').convert()
+		bg = pg.image.load('images/bg.png').convert()
 		_, _, bg_w, bg_h = bg.get_rect()
 		sf = 0.8
 		bg = pg.transform.scale(bg, (int(bg_w * sf), int(bg_h * sf)))

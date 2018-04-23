@@ -1,9 +1,9 @@
 import time, random
-from constants import *
-from bubble_file import *
-from grid_file import *
-from shooter_file import *
-from game_objects import *
+from objs.constants import *
+from objs.bubble_file import *
+from objs.grid_file import *
+from objs.shooter_file import *
+from objs.game_objects import *
 import pygame as pg
 pg.init()
 
